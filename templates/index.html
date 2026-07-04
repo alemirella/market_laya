@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Market Laya — Sistema IA de Riesgo de Vencimiento</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --bg:          #0d1117;
+    --surface:     #161b22;
+    --surface2:    #21262d;
+    --border:      #30363d;
+    --text:        #e6edf3;
+    --muted:       #8b949e;
+    --critico:     #ff4444;
+    --critico-bg:  #2d0f0f;
+    --alto:        #f4a11b;
+    --alto-bg:     #2d1f00;
+    --moderado:    #e3c03a;
+    --moderado-bg: #2a2200;
+    --bajo:        #3fb950;
+    --bajo-bg:     #0d2615;
+    --accent:      #2563eb;
+    --accent-l:    #3b82f6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 15px; }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .badge-ia {
+    background: rgba(37,99,235,.2);
+    color: var(--accent-l);
+    border: 1px solid rgba(37,99,235,.4);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+  }
+  .header-meta { color: var(--muted); font-size: 12px; }
+  .dot-live {
+    display: inline-block;
+    width: 7px; height: 7px;
+    background: var(--bajo);
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: pulse 2s infinite;
+  }
+
+  main { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+
+  /* KPIs */
+  .hero { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; margin-bottom: 40px; }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .kpi-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; }
+  .kpi-value { font-size: 32px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+  .kpi-sub   { color: var(--muted); font-size: 12px; margin-top: 4px; }
+  .kpi.critico { border-color: var(--critico); background: var(--critico-bg); }
+  .kpi.critico .kpi-value { color: var(--critico); }
+  .kpi.acc .kpi-value { color: var(--accent-l); }
+  .kpi.ok  .kpi-value { color: var(--bajo); }
+
+  /* section title */
+  .section-title {
+    font-size: 13px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .8px;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* grid */
+  .grid-2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px; margin-bottom: 40px; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600; font-size: 13px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: left; padding: 10px 16px;
+    font-size: 11px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .6px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  td { padding: 10px 16px; border-bottom: 1px solid #21262d; font-size: 13px; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,.03); }
+
+  .chip {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase;
+  }
+  .chip.CRITICO { background:var(--critico-bg); color:var(--critico); border:1px solid var(--critico); }
+  .chip.ALTO    { background:var(--alto-bg);    color:var(--alto);    border:1px solid var(--alto); }
+  .chip.MODERADO{ background:var(--moderado-bg);color:var(--moderado);border:1px solid var(--moderado); }
+  .chip.BAJO    { background:var(--bajo-bg);    color:var(--bajo);    border:1px solid var(--bajo); }
+
+  /* importancia */
+  .var-list { padding: 16px 20px; display: flex; flex-direction: column; gap: 14px; }
+  .var-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+  .var-name { font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+  .var-pct  { font-size: 12px; font-weight: 700; color: var(--accent-l); }
+  .bar-track { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+  .bar-fill  { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--accent-l)); transition: width 1s ease; width: 0%; }
+
+  /* clasificador */
+  .classifier { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 40px; }
+  .clf-body { padding: 24px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .field label {
+    display: block; font-size: 11px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .6px; margin-bottom: 8px;
+  }
+  .field input, .field select {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font-family: 'Inter', sans-serif;
+    font-size: 14px; padding: 10px 12px; outline: none; transition: border-color .2s;
+  }
+  .field input:focus, .field select:focus { border-color: var(--accent-l); }
+  .field select option { background: var(--surface2); }
+
+  .btn-clasificar {
+    background: var(--accent); color: #fff; border: none; border-radius: 6px;
+    padding: 11px 28px; font-family: 'Inter', sans-serif; font-size: 14px;
+    font-weight: 600; cursor: pointer; transition: background .2s, transform .1s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .btn-clasificar:hover { background: #1d4ed8; }
+  .btn-clasificar:active { transform: scale(.98); }
+  .btn-clasificar:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+
+  .resultado-box {
+    margin-top: 24px; border-radius: 8px; padding: 20px 24px;
+    display: none; animation: fadeIn .3s ease;
+  }
+  .resultado-box.visible { display: flex; align-items: center; gap: 24px; }
+  .resultado-nivel { font-size: 42px; font-weight: 800; font-family: 'JetBrains Mono', monospace; min-width: 160px; }
+  .resultado-detalle { flex: 1; }
+  .resultado-detalle h3 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .resultado-detalle p  { color: var(--muted); font-size: 13px; }
+  .resultado-acc { text-align: right; min-width: 80px; }
+  .resultado-acc .num { font-size: 28px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--accent-l); }
+  .resultado-acc .lbl { font-size: 11px; color: var(--muted); }
+
+  .resultado-box.CRITICO  { background:var(--critico-bg);  border:1px solid var(--critico); }
+  .resultado-box.CRITICO  .resultado-nivel { color:var(--critico); }
+  .resultado-box.ALTO     { background:var(--alto-bg);     border:1px solid var(--alto); }
+  .resultado-box.ALTO     .resultado-nivel { color:var(--alto); }
+  .resultado-box.MODERADO { background:var(--moderado-bg); border:1px solid var(--moderado); }
+  .resultado-box.MODERADO .resultado-nivel { color:var(--moderado); }
+  .resultado-box.BAJO     { background:var(--bajo-bg);     border:1px solid var(--bajo); }
+  .resultado-box.BAJO     .resultado-nivel { color:var(--bajo); }
+
+  .tag-cat {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 11px; background: var(--surface2); color: var(--muted); border: 1px solid var(--border);
+  }
+
+  .skeleton { background: var(--surface2); border-radius: 4px; animation: shimmer 1.2s infinite; }
+  .skeleton-row td { padding: 14px 16px; }
+
+  /* ── Reposición ─────────────────────────────────────────── */
+  .repo-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px;
+    background: rgba(37,99,235,.15); color: var(--accent-l); border: 1px solid rgba(37,99,235,.35);
+  }
+  .repo-badge.regla { background: rgba(139,148,158,.15); color: var(--muted); border-color: var(--border); }
+  .repo-cantidad { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+  .repo-cantidad.sin-pedido { color: var(--muted); font-weight: 400; }
+
+  /* ── Tendencia (mini gráfico de barras apiladas) ───────────── */
+  .tendencia-chart {
+    display: flex; align-items: flex-end; gap: 6px;
+    height: 140px; padding: 16px 20px 8px 20px;
+  }
+  .tendencia-col { flex: 1; display: flex; flex-direction: column-reverse; height: 100%; border-radius: 3px 3px 0 0; overflow: hidden; min-width: 8px; }
+  .tendencia-seg { width: 100%; }
+  .tendencia-labels { display: flex; gap: 6px; padding: 0 20px 16px 20px; }
+  .tendencia-label { flex: 1; text-align: center; font-size: 9px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tendencia-legend { display: flex; gap: 14px; padding: 0 20px 14px 20px; flex-wrap: wrap; }
+  .tendencia-legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+  .tendencia-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+  footer { border-top: 1px solid var(--border); padding: 24px; text-align: center; color: var(--muted); font-size: 12px; }
+
+  @keyframes fadeIn  { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes pulse   { 0%,100% { opacity:1; } 50% { opacity:.4; } }
+  @keyframes shimmer { 0%,100% { opacity:.5; } 50% { opacity:1; } }
+
+  /* ── Chatbot widget ─────────────────────────────────────── */
+  .chat-fab {
+    position: fixed; bottom: 24px; right: 24px; z-index: 200;
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--accent); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; box-shadow: 0 4px 16px rgba(0,0,0,.4);
+    transition: transform .15s ease, background .2s;
+  }
+  .chat-fab:hover { background: #1d4ed8; transform: scale(1.06); }
+
+  .chat-panel {
+    position: fixed; bottom: 92px; right: 24px; z-index: 200;
+    width: 360px; max-width: calc(100vw - 32px);
+    height: 480px; max-height: calc(100vh - 140px);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+    display: none; flex-direction: column;
+    box-shadow: 0 12px 32px rgba(0,0,0,.5);
+    animation: fadeIn .2s ease;
+  }
+  .chat-panel.open { display: flex; }
+
+  .chat-header {
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .chat-header-title { display:flex; align-items:center; gap:8px; font-weight:600; font-size:13px; }
+  .chat-close {
+    background: none; border: none; color: var(--muted); cursor: pointer;
+    font-size: 18px; line-height: 1; padding: 4px;
+  }
+  .chat-close:hover { color: var(--text); }
+
+  .chat-body {
+    flex: 1; overflow-y: auto; padding: 16px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+
+  .msg { max-width: 85%; padding: 9px 12px; border-radius: 10px; font-size: 13px; line-height: 1.5; white-space: pre-wrap; }
+  .msg.bot  { background: var(--surface2); border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 3px; }
+  .msg.user { background: var(--accent); color: #fff; align-self: flex-end; border-bottom-right-radius: 3px; }
+  .msg-intent { font-size: 10px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .4px; }
+
+  .chat-typing { align-self: flex-start; color: var(--muted); font-size: 12px; padding: 0 4px; }
+
+  .chat-input-row {
+    display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .chat-input-row input {
+    flex: 1; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font-family: 'Inter', sans-serif;
+    font-size: 13px; padding: 9px 12px; outline: none;
+  }
+  .chat-input-row input:focus { border-color: var(--accent-l); }
+  .chat-send {
+    background: var(--accent); color: #fff; border: none; border-radius: 6px;
+    width: 38px; cursor: pointer; font-size: 15px;
+  }
+  .chat-send:hover { background: #1d4ed8; }
+  .chat-send:disabled { background: var(--border); cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🛒</div>
+    <span>Market Laya</span>
+    <span class="badge-ia">IA · Random Forest</span>
+  </div>
+  <div class="header-meta">
+    <span class="dot-live"></span>Modelo activo &nbsp;|&nbsp; Universidad Continental 2026
+  </div>
+</header>
+
+<main>
+
+  <!-- KPIs -->
+  <div class="hero">
+    <div class="kpi critico">
+      <div class="kpi-label">Riesgo Crítico</div>
+      <div class="kpi-value" id="kpi-critico">—</div>
+      <div class="kpi-sub" id="kpi-critico-sub">cargando...</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Productos analizados</div>
+      <div class="kpi-value" id="kpi-total" style="color:var(--text)">—</div>
+      <div class="kpi-sub">inventario actual</div>
+    </div>
+    <div class="kpi acc">
+      <div class="kpi-label">Exactitud del modelo</div>
+      <div class="kpi-value" id="kpi-exactitud">—</div>
+      <div class="kpi-sub" id="kpi-exactitud-sub">cargando...</div>
+    </div>
+    <div class="kpi ok">
+      <div class="kpi-label">Variables del modelo</div>
+      <div class="kpi-value" id="kpi-nfeat">—</div>
+      <div class="kpi-sub">categoría, costo, rotación, precio…</div>
+    </div>
+  </div>
+
+  <!-- Tabla + Importancia -->
+  <div class="section-title">Inventario actual — predicciones del modelo</div>
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="card-header">
+        <span>📦 Clasificación por producto</span>
+        <span style="color:var(--muted);font-size:12px;font-weight:400" id="total-label">cargando…</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Stock</th>
+            <th>Días</th>
+            <th>Riesgo</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <!-- skeleton -->
+          <tr class="skeleton-row"><td colspan="5"><div class="skeleton" style="height:18px;width:80%"></div></td></tr>
+          <tr class="skeleton-row"><td colspan="5"><div class="skeleton" style="height:18px;width:65%"></div></td></tr>
+          <tr class="skeleton-row"><td colspan="5"><div class="skeleton" style="height:18px;width:72%"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span>📊 Importancia de variables</span>
+        <span style="color:var(--muted);font-size:12px;font-weight:400">Random Forest</span>
+      </div>
+      <div class="var-list" id="var-list">
+        <div class="skeleton" style="height:40px;border-radius:6px"></div>
+        <div class="skeleton" style="height:40px;border-radius:6px"></div>
+        <div class="skeleton" style="height:40px;border-radius:6px"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Reposición + Tendencia -->
+  <div class="section-title">Reposición sugerida y tendencia de riesgo</div>
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="card-header">
+        <span>🛒 Recomendación de pedido — próxima semana</span>
+        <span style="color:var(--muted);font-size:12px;font-weight:400" id="repo-label">cargando…</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Stock</th>
+            <th>Venta est.</th>
+            <th>Pedir</th>
+            <th>Método</th>
+          </tr>
+        </thead>
+        <tbody id="repo-tbody">
+          <tr class="skeleton-row"><td colspan="5"><div class="skeleton" style="height:18px;width:80%"></div></td></tr>
+          <tr class="skeleton-row"><td colspan="5"><div class="skeleton" style="height:18px;width:65%"></div></td></tr>
+          <tr class="skeleton-row"><td colspan="5"><div class="skeleton" style="height:18px;width:72%"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span>📈 Tendencia de riesgo por mes</span>
+        <span style="color:var(--muted);font-size:12px;font-weight:400">histórico de lotes</span>
+      </div>
+      <div class="tendencia-chart" id="tendencia-chart">
+        <div class="skeleton" style="height:100%;width:100%;border-radius:6px"></div>
+      </div>
+      <div class="tendencia-labels" id="tendencia-labels"></div>
+      <div class="tendencia-legend" id="tendencia-legend"></div>
+    </div>
+
+  </div>
+
+  <div class="section-title">Clasificador en tiempo real</div>
+  <div class="classifier">
+    <div class="card-header">
+      🤖 Ingresa un producto nuevo — el modelo lo clasifica con el Random Forest entrenado
+    </div>
+    <div class="clf-body">
+      <div class="form-grid">
+        <div class="field">
+          <label>Nombre del producto</label>
+          <input type="text" id="inp-nombre" placeholder="ej. Leche Fresca 1L">
+        </div>
+        <div class="field">
+          <label>Categoría</label>
+          <select id="inp-cat">
+            <option value="Lacteos">Lácteos</option>
+            <option value="Bebidas">Bebidas</option>
+            <option value="Alimentos">Alimentos</option>
+            <option value="Snacks">Snacks</option>
+            <option value="Higiene">Higiene</option>
+            <option value="Limpieza">Limpieza</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Costo unitario (S/)</label>
+          <input type="number" id="inp-costo" placeholder="ej. 4.50" min="0" step="0.1">
+        </div>
+        <div class="field">
+          <label>Precio de venta estimado (S/)</label>
+          <input type="number" id="inp-precio" placeholder="ej. 6.90" min="0" step="0.1">
+        </div>
+      </div>
+      <p style="color:var(--muted);font-size:12px;margin-top:8px">
+        La rotación y ventas históricas -que un producto nuevo aún no tiene- se estiman con
+        la mediana de su categoría.
+      </p>
+      <button class="btn-clasificar" id="btn-clf" onclick="clasificar()">
+        ⚡ Clasificar con IA
+      </button>
+
+      <div class="resultado-box" id="resultado">
+        <div class="resultado-nivel" id="res-nivel">—</div>
+        <div class="resultado-detalle">
+          <h3 id="res-titulo">—</h3>
+          <p  id="res-desc">—</p>
+        </div>
+        <div class="resultado-acc">
+          <div class="num" id="res-conf">—</div>
+          <div class="lbl">confianza</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Chatbot widget -->
+<button class="chat-fab" id="chat-fab" onclick="toggleChat()" title="Preguntar al asistente">💬</button>
+
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-header">
+    <div class="chat-header-title">🤖 Asistente Market Laya</div>
+    <button class="chat-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-body" id="chat-body">
+    <div class="msg bot">¡Hola! Soy el asistente de Market Laya. Puedo decirte qué productos están en riesgo de vencer, explicarte por qué, cuánto pedir de reposición, o darte un resumen del inventario. Prueba: "¿cuánto debo pedir de arroz costeño?"</div>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" id="chat-input" placeholder="Escribe tu pregunta...">
+    <button class="chat-send" id="chat-send" onclick="enviarChat()">➤</button>
+  </div>
+</div>
+
+<footer>
+  Market Laya · Inteligencia de Negocios · Universidad Continental · NRC 32509 · 2026
+</footer>
+
+<script>
+// ── CARGAR DATOS DESDE FLASK ─────────────────────────────────
+async function cargarDatos() {
+  try {
+    const res  = await fetch("/datos");
+    const data = await res.json();
+
+    // KPIs
+    const criticos = data.kpis.criticos;
+    document.getElementById("kpi-critico").textContent = criticos;
+    document.getElementById("kpi-total").textContent   = data.kpis.total;
+
+    // Buscar el producto crítico para el subtítulo
+    const pc = data.productos.find(p => p.riesgo === "CRITICO");
+    document.getElementById("kpi-critico-sub").textContent =
+      pc ? `${pc.nombre} — ${pc.dias} días` : "Sin productos críticos";
+
+    document.getElementById("total-label").textContent = data.productos.length + " productos";
+
+    document.getElementById("kpi-exactitud").textContent = data.kpis.exactitud_pct + "%";
+    document.getElementById("kpi-exactitud-sub").textContent =
+      `test de ${data.kpis.n_test} lotes · F1-macro ${data.kpis.f1_macro_pct}%`;
+    document.getElementById("kpi-nfeat").textContent = data.kpis.n_features;
+
+    // Tabla
+    const tbody = document.getElementById("tbody");
+    tbody.innerHTML = "";
+    data.productos.forEach(p => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td style="font-weight:500">${p.nombre}</td>
+        <td><span class="tag-cat">${p.categoria}</span></td>
+        <td style="font-family:'JetBrains Mono',monospace">${p.stock}</td>
+        <td style="font-family:'JetBrains Mono',monospace">${p.dias}</td>
+        <td><span class="chip ${p.riesgo}">${p.riesgo}</span></td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // Importancia de variables
+    const varList = document.getElementById("var-list");
+    varList.innerHTML = "";
+    const maxPct = Math.max(...data.importancias.map(v => v.pct));
+    data.importancias.forEach(v => {
+      const div = document.createElement("div");
+      div.innerHTML = `
+        <div class="var-header">
+          <span class="var-name">${v.nombre}</span>
+          <span class="var-pct">${v.pct}%</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" data-w="${(v.pct / maxPct * 100).toFixed(1)}%"></div>
+        </div>
+      `;
+      varList.appendChild(div);
+    });
+
+    // Animar barras
+    setTimeout(() => {
+      document.querySelectorAll(".bar-fill").forEach(b => {
+        b.style.width = b.dataset.w;
+      });
+    }, 200);
+
+  } catch (e) {
+    console.error("Error cargando datos:", e);
+    document.getElementById("tbody").innerHTML =
+      `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px">
+        Error conectando con el servidor. Asegúrate de que app.py está corriendo.
+      </td></tr>`;
+  }
+}
+
+// ── CLASIFICADOR — LLAMA AL MODELO REAL EN FLASK ─────────────
+async function clasificar() {
+  const nombre = document.getElementById("inp-nombre").value.trim() || "Producto nuevo";
+  const cat    = document.getElementById("inp-cat").value;
+  const costo  = document.getElementById("inp-costo").value;
+  const precio = document.getElementById("inp-precio").value;
+
+  const btn = document.getElementById("btn-clf");
+  btn.disabled = true;
+  btn.textContent = "Clasificando…";
+
+  try {
+    const res  = await fetch("/predecir", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nombre, categoria: cat, costo_unitario: costo, precio_venta: precio })
+    });
+    const data = await res.json();
+
+    const titulos = {
+      CRITICO:  "⚠️ Acción inmediata requerida",
+      ALTO:     "🔴 Promoción urgente",
+      MODERADO: "🟡 Seguimiento semanal",
+      BAJO:     "✅ Operación normal",
+      VENCIDO:  "🚫 Producto vencido",
+    };
+
+    const box = document.getElementById("resultado");
+    box.className = `resultado-box visible ${data.nivel}`;
+    document.getElementById("res-nivel").textContent  = data.nivel;
+    document.getElementById("res-titulo").textContent = titulos[data.nivel] || data.nivel;
+    document.getElementById("res-desc").textContent   =
+      `"${data.nombre}" · ${cat} · costo S/${data.supuestos.costo_unitario} · precio S/${data.supuestos.precio_venta} → ${data.accion}`;
+    document.getElementById("res-conf").textContent   = data.confianza + "%";
+
+  } catch (e) {
+    alert("Error al conectar con el servidor Flask.");
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = "⚡ Clasificar con IA";
+  }
+}
+
+// Enter en inputs
+document.querySelectorAll(".field input").forEach(inp => {
+  inp.addEventListener("keydown", e => { if (e.key === "Enter") clasificar(); });
+});
+
+// ── CHATBOT ───────────────────────────────────────────────
+function toggleChat() {
+  const panel = document.getElementById("chat-panel");
+  panel.classList.toggle("open");
+  if (panel.classList.contains("open")) {
+    document.getElementById("chat-input").focus();
+  }
+}
+
+function agregarMensaje(texto, tipo, intencion) {
+  const body = document.getElementById("chat-body");
+  const div = document.createElement("div");
+  div.className = `msg ${tipo}`;
+  div.textContent = texto;
+  if (tipo === "bot" && intencion) {
+    const meta = document.createElement("div");
+    meta.className = "msg-intent";
+    meta.textContent = intencion;
+    div.appendChild(meta);
+  }
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+  return div;
+}
+
+async function enviarChat() {
+  const input = document.getElementById("chat-input");
+  const mensaje = input.value.trim();
+  if (!mensaje) return;
+
+  agregarMensaje(mensaje, "user");
+  input.value = "";
+
+  const btn = document.getElementById("chat-send");
+  btn.disabled = true;
+
+  const body = document.getElementById("chat-body");
+  const typing = document.createElement("div");
+  typing.className = "chat-typing";
+  typing.textContent = "El asistente está escribiendo…";
+  body.appendChild(typing);
+  body.scrollTop = body.scrollHeight;
+
+  try {
+    const res  = await fetch("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mensaje })
+    });
+    const data = await res.json();
+    typing.remove();
+    const etiqueta = data.intencion ? `${data.intencion} · ${data.confianza}%` : "";
+    agregarMensaje(data.respuesta, "bot", etiqueta);
+  } catch (e) {
+    typing.remove();
+    agregarMensaje("Error al conectar con el servidor. Verifica que app.py está corriendo.", "bot");
+  } finally {
+    btn.disabled = false;
+    input.focus();
+  }
+}
+
+document.getElementById("chat-input").addEventListener("keydown", e => {
+  if (e.key === "Enter") enviarChat();
+});
+
+// ── REPOSICIÓN — LLAMA A /reponer ────────────────────────────
+async function cargarReposicion() {
+  try {
+    const res  = await fetch("/reponer");
+    const data = await res.json();
+
+    document.getElementById("repo-label").textContent = data.recomendaciones.length + " productos";
+
+    const tbody = document.getElementById("repo-tbody");
+    tbody.innerHTML = "";
+
+    const ordenados = [...data.recomendaciones].sort((a, b) => b.cantidad_sugerida - a.cantidad_sugerida);
+
+    ordenados.forEach(r => {
+      const tr = document.createElement("tr");
+      const badgeClass = r.metodo.startsWith("ML") ? "repo-badge" : "repo-badge regla";
+      const badgeTexto = r.metodo.startsWith("ML") ? "ML" : "Regla";
+      const cantidadClass = r.cantidad_sugerida > 0 ? "repo-cantidad" : "repo-cantidad sin-pedido";
+      tr.innerHTML = `
+        <td style="font-weight:500">${r.nombre}</td>
+        <td style="font-family:'JetBrains Mono',monospace">${r.stock}</td>
+        <td style="font-family:'JetBrains Mono',monospace">${r.ventas_estimadas.toFixed(1)}</td>
+        <td class="${cantidadClass}">${r.cantidad_sugerida}</td>
+        <td><span class="${badgeClass}">${badgeTexto}</span></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (e) {
+    console.error("Error cargando reposición:", e);
+    document.getElementById("repo-tbody").innerHTML =
+      `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px">
+        Error conectando con el servidor.
+      </td></tr>`;
+  }
+}
+
+// ── TENDENCIA — LLAMA A /tendencia ───────────────────────────
+async function cargarTendencia() {
+  const COLORES = { CRITICO: "#ff4444", ALTO: "#f4a11b", MODERADO: "#e3c03a", BAJO: "#3fb950" };
+  try {
+    const res  = await fetch("/tendencia");
+    const data = await res.json();
+
+    const chart  = document.getElementById("tendencia-chart");
+    const labels = document.getElementById("tendencia-labels");
+    const legend = document.getElementById("tendencia-legend");
+    chart.innerHTML = "";
+    labels.innerHTML = "";
+    legend.innerHTML = "";
+
+    const niveles = Object.keys(data.series);
+    const totalesPorMes = data.meses.map((_, i) =>
+      niveles.reduce((sum, n) => sum + data.series[n][i], 0)
+    );
+    const maxTotal = Math.max(...totalesPorMes, 1);
+
+    data.meses.forEach((mes, i) => {
+      const col = document.createElement("div");
+      col.className = "tendencia-col";
+      col.style.height = `${Math.max(4, (totalesPorMes[i] / maxTotal) * 100)}%`;
+      col.title = `${mes}: ${totalesPorMes[i]} lotes`;
+
+      niveles.forEach(nivel => {
+        const valor = data.series[nivel][i];
+        if (valor <= 0 || totalesPorMes[i] === 0) return;
+        const seg = document.createElement("div");
+        seg.className = "tendencia-seg";
+        seg.style.height = `${(valor / totalesPorMes[i]) * 100}%`;
+        seg.style.background = COLORES[nivel] || "#8b949e";
+        col.appendChild(seg);
+      });
+      chart.appendChild(col);
+
+      const lbl = document.createElement("div");
+      lbl.className = "tendencia-label";
+      lbl.textContent = mes.slice(2); // YY-MM
+      labels.appendChild(lbl);
+    });
+
+    niveles.forEach(nivel => {
+      const item = document.createElement("div");
+      item.className = "tendencia-legend-item";
+      item.innerHTML = `<span class="tendencia-dot" style="background:${COLORES[nivel] || '#8b949e'}"></span>${nivel}`;
+      legend.appendChild(item);
+    });
+  } catch (e) {
+    console.error("Error cargando tendencia:", e);
+    document.getElementById("tendencia-chart").innerHTML =
+      `<div style="color:var(--muted);font-size:12px;padding:16px">Error conectando con el servidor.</div>`;
+  }
+}
+
+// Cargar datos al abrir
+cargarDatos();
+cargarReposicion();
+cargarTendencia();
+</script>
+</body>
+</html>
+

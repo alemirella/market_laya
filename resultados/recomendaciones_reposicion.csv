@@ -1,0 +1,26 @@
+id_producto,nombre_producto,categoria,stock_disponible,ventas_semanales_promedio,ventas_estimadas_proxima_semana,cantidad_sugerida_pedido,metodo,semanas_historial
+P003,Azucar Rubia 1kg,Alimentos,0,73.88,81.27,93,ML (Random Forest),140
+P015,Papas Lays 42g,Snacks,7,77.31,77.47,82,ML (Random Forest),140
+P009,Coca Cola 500ml,Bebidas,10,82.86,77.6,79,ML (Random Forest),140
+P001,Arroz Costeno 1kg,Alimentos,5,75.78,71.48,77,ML (Random Forest),140
+P011,Agua San Luis 625ml,Bebidas,13,83.47,76.03,74,ML (Random Forest),140
+P024,Papel Higienico Elite 4u,Higiene,4,71.06,66.73,73,ML (Random Forest),140
+P005,Leche Gloria 400g,Lacteos,11,69.19,72.34,72,ML (Random Forest),140
+P010,Inca Kola 1.5L,Bebidas,11,82.79,69.56,69,ML (Random Forest),139
+P004,Fideos Don Vittorio 500g,Alimentos,16,70.57,70.45,65,ML (Random Forest),140
+P014,Galletas Oreo 12u,Snacks,18,75.67,70.02,63,ML (Random Forest),140
+P006,Yogurt Laive 1L,Lacteos,0,27.68,28.43,33,ML (Random Forest),140
+P002,Aceite Primor 1L,Alimentos,2,28.85,28.37,31,ML (Random Forest),140
+P016,Chocolate Sublime,Snacks,5,30.88,31.11,31,ML (Random Forest),139
+P025,Pasta Dental Colgate 75ml,Higiene,1,28.46,27.49,31,ML (Random Forest),140
+P020,Lejia Clorox 1L,Limpieza,5,29.45,29.8,29,ML (Random Forest),139
+P012,Cerveza Cristal 650ml,Bebidas,7,31.44,30.13,28,ML (Random Forest),140
+P023,Jabon Dove 90g,Higiene,7,28.04,28.85,26,ML (Random Forest),140
+P019,Detergente Ariel 500g,Limpieza,8,27.79,28.64,25,ML (Random Forest),140
+P021,Jabon Bolivar 230g,Limpieza,6,10.44,10.87,7,ML (Random Forest),140
+P022,Shampoo Pantene 400ml,Higiene,7,10.16,10.05,5,ML (Random Forest),140
+P018,Chifles 50g,Snacks,8,10.09,10.23,4,ML (Random Forest),139
+P007,Queso Fresco 250g,Lacteos,10,9.85,9.79,1,ML (Random Forest),139
+P008,Mantequilla Laive 100g,Lacteos,11,9.12,9.63,0,ML (Random Forest),139
+P017,Galletas Casino 6u,Snacks,15,10.67,10.77,0,ML (Random Forest),140
+P013,Energizante Volt 473ml,Bebidas,15,12.21,11.85,0,ML (Random Forest),140

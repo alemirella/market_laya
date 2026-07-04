@@ -1,0 +1,26 @@
+id_producto,nombre_producto,categoria,stock_disponible,dias_para_vencer,prediccion_riesgo,confianza_pct
+P007,Queso Fresco 250g,Lacteos,10,14,ALTO,50.0
+P006,Yogurt Laive 1L,Lacteos,0,21,MODERADO,100.0
+P001,Arroz Costeno 1kg,Alimentos,5,365,BAJO,100.0
+P002,Aceite Primor 1L,Alimentos,2,540,BAJO,100.0
+P004,Fideos Don Vittorio 500g,Alimentos,16,540,BAJO,100.0
+P003,Azucar Rubia 1kg,Alimentos,0,365,BAJO,100.0
+P005,Leche Gloria 400g,Lacteos,11,180,BAJO,100.0
+P008,Mantequilla Laive 100g,Lacteos,11,90,BAJO,100.0
+P009,Coca Cola 500ml,Bebidas,10,90,BAJO,100.0
+P010,Inca Kola 1.5L,Bebidas,11,90,BAJO,100.0
+P011,Agua San Luis 625ml,Bebidas,13,365,BAJO,100.0
+P012,Cerveza Cristal 650ml,Bebidas,7,90,BAJO,100.0
+P013,Energizante Volt 473ml,Bebidas,15,180,BAJO,100.0
+P014,Galletas Oreo 12u,Snacks,18,180,BAJO,100.0
+P015,Papas Lays 42g,Snacks,7,120,BAJO,100.0
+P016,Chocolate Sublime,Snacks,5,270,BAJO,100.0
+P017,Galletas Casino 6u,Snacks,15,180,BAJO,100.0
+P018,Chifles 50g,Snacks,8,120,BAJO,100.0
+P019,Detergente Ariel 500g,Limpieza,8,730,BAJO,100.0
+P020,Lejia Clorox 1L,Limpieza,5,365,BAJO,100.0
+P021,Jabon Bolivar 230g,Limpieza,6,730,BAJO,100.0
+P022,Shampoo Pantene 400ml,Higiene,7,730,BAJO,100.0
+P023,Jabon Dove 90g,Higiene,7,730,BAJO,100.0
+P024,Papel Higienico Elite 4u,Higiene,4,730,BAJO,100.0
+P025,Pasta Dental Colgate 75ml,Higiene,1,730,BAJO,100.0

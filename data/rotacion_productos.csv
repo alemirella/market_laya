@@ -1,0 +1,26 @@
+id_producto,nombre_producto,categoria,unidades_vendidas,ingresos_totales,stock_promedio,total_ingresado,tasa_rotacion,clasificacion
+P011,Agua San Luis 625ml,Bebidas,11686.0,17529.0,5.49,2599,2128.6,Alta rotación
+P016,Chocolate Sublime,Snacks,4293.0,6439.5,2.48,607,1731.05,Alta rotación
+P001,Arroz Costeno 1kg,Alimentos,10609.0,37131.5,6.98,2581,1519.91,Alta rotación
+P005,Leche Gloria 400g,Lacteos,9686.0,43587.0,6.56,2667,1476.52,Alta rotación
+P010,Inca Kola 1.5L,Bebidas,11508.0,63294.0,8.09,2479,1422.5,Alta rotación
+P015,Papas Lays 42g,Snacks,10824.0,21648.0,7.77,2634,1393.05,Alta rotación
+P009,Coca Cola 500ml,Bebidas,11600.0,29000.0,8.38,2757,1384.25,Alta rotación
+P002,Aceite Primor 1L,Alimentos,4039.0,32312.0,3.11,671,1298.71,Alta rotación
+P003,Azucar Rubia 1kg,Alimentos,10343.0,33097.6,8.0,2607,1292.88,Alta rotación
+P004,Fideos Don Vittorio 500g,Alimentos,9880.0,27664.0,7.73,2552,1278.14,Alta rotación
+P020,Lejia Clorox 1L,Limpieza,4093.0,16372.0,3.21,692,1275.08,Alta rotación
+P024,Papel Higienico Elite 4u,Higiene,9948.0,54714.0,7.85,2706,1267.26,Alta rotación
+P023,Jabon Dove 90g,Higiene,3925.0,13737.5,3.11,658,1262.06,Alta rotación
+P019,Detergente Ariel 500g,Limpieza,3891.0,33073.5,3.1,715,1255.16,Alta rotación
+P014,Galletas Oreo 12u,Snacks,10594.0,26485.0,8.81,2750,1202.5,Alta rotación
+P012,Cerveza Cristal 650ml,Bebidas,4402.0,22010.0,3.75,708,1173.87,Alta rotación
+P006,Yogurt Laive 1L,Lacteos,3875.0,29062.5,3.69,696,1050.14,Alta rotación
+P025,Pasta Dental Colgate 75ml,Higiene,3984.0,17928.0,4.43,697,899.32,Alta rotación
+P013,Energizante Volt 473ml,Bebidas,1709.0,5981.5,9.58,251,178.39,Alta rotación
+P021,Jabon Bolivar 230g,Limpieza,1462.0,3655.0,9.35,228,156.36,Alta rotación
+P017,Galletas Casino 6u,Snacks,1494.0,2689.2,9.72,285,153.7,Alta rotación
+P022,Shampoo Pantene 400ml,Higiene,1423.0,19922.0,9.59,248,148.38,Alta rotación
+P018,Chifles 50g,Snacks,1402.0,2103.0,9.67,245,144.98,Alta rotación
+P007,Queso Fresco 250g,Lacteos,1369.0,6845.0,10.24,226,133.69,Alta rotación
+P008,Mantequilla Laive 100g,Lacteos,1267.0,5321.4,11.42,280,110.95,Alta rotación

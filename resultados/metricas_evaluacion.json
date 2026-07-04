@@ -1,0 +1,70 @@
+{
+  "exactitud_pct": 99.4,
+  "f1_macro_pct": 71.43,
+  "f1_ponderado_pct": 99.14,
+  "n_train": 660,
+  "n_train_balanceado": 2496,
+  "n_test": 166,
+  "smote_aplicado": true,
+  "smote_disponible": true,
+  "por_clase": {
+    "CRITICO": {
+      "precision_pct": 75.0,
+      "recall_pct": 100.0,
+      "f1_pct": 85.71,
+      "soporte": 3
+    },
+    "ALTO": {
+      "precision_pct": 0.0,
+      "recall_pct": 0.0,
+      "f1_pct": 0.0,
+      "soporte": 1
+    },
+    "MODERADO": {
+      "precision_pct": 100.0,
+      "recall_pct": 100.0,
+      "f1_pct": 100.0,
+      "soporte": 6
+    },
+    "BAJO": {
+      "precision_pct": 100.0,
+      "recall_pct": 100.0,
+      "f1_pct": 100.0,
+      "soporte": 156
+    }
+  },
+  "matriz_confusion": {
+    "clases": [
+      "CRITICO",
+      "ALTO",
+      "MODERADO",
+      "BAJO"
+    ],
+    "valores": [
+      [
+        3,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        6,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        156
+      ]
+    ]
+  }
+}
